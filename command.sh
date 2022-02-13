@@ -5,9 +5,24 @@ command=$1
 case "$command" in
   "init")
     cmake -S. -B.build;;
+  "test")
+    step_test;;
   "build")
-    cmake --build .build;;
+    step_build;;
   "run"|"start")
-    cmake --build .build;
-    ./.build/osLinux;;
+    step_run
 esac
+
+function step_test() {
+    cppcheck -q --enable=all ./*.c
+}
+
+function step_build() {
+    step_test;
+    cmake --build .build
+}
+
+function step_run() {
+    step_build;
+    ./.build/osLinux;;
+}

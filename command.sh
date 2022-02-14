@@ -3,7 +3,7 @@
 command=$1
 
 function step_test() {
-    cppcheck -q ./*.c;
+    cppcheck --enable=all *.c --enable=all --suppress=missingIncludeSystem --std=c11;
 }
 
 function step_build() {

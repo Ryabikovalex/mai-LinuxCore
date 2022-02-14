@@ -3,7 +3,7 @@
 command=$1
 
 function step_test() {
-    cppcheck -q --enable=all ./*.c;
+    cppcheck -q ./*.c;
 }
 
 function step_build() {
@@ -11,7 +11,7 @@ function step_build() {
     cmake --build .build;
 }
 
-function step_run() {
+function step_run {
     step_build;
     ./.build/osLinux;
 }

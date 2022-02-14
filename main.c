@@ -12,7 +12,11 @@ int main(int argc, char *argv[])
         {
             char *archive_name = (argc == 4) ? argv[3] : "archive.custom";
             return pack(argv[2], archive_name);
-        }else return 0;
+        } else if (strcmp(argv[1], "unpack") == 0)
+        {
+            char *output_folder = (argc == 4) ? argv[3] : ".";
+            return unpack(argv[2], output_folder);
+        } else return 0;
     }
 }
 

@@ -9,6 +9,7 @@ set(
         main.h
         main.c
         pack.c
+        unpack.c
         util.h
         util.c
 )

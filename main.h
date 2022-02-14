@@ -28,5 +28,6 @@ struct c_file
 
 // Function for creating archive
 int pack(char *dir_name, char *archive_name);
+int unpack(char *archive_name, char *dir_name);
 
 unsigned long get_fsize(char *file_path);

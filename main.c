@@ -1,7 +1,7 @@
 #include "main.h"
 
 int main(int argc, char *argv[])
-{saAS
+{
     if (argc < 3)
     {
         printf("error: Missing arguments\n");

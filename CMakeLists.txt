@@ -6,7 +6,9 @@ set(CMAKE_C_STANDARD 11)
 
 set(
         SOURCE_FILES
+        main.h
         main.c
+        pack.c
         util.h
         util.c
 )

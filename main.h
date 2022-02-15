@@ -15,7 +15,7 @@
 
 // Constants
 #define BUFFER_SIZE 5//1024
-#define NAME_MAX 255 // It's override default value
+#define STR_MAX_SIZE 255 // It's override default value
 #define RECORD_SEPARATOR  0x1E
 #define BINARY_SEPARATOR  0x1C
 

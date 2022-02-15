@@ -3,7 +3,7 @@
 int list(char *archive_name)
 {
     int exit_code = 0;
-    char *resolved_file_path = calloc(sizeof(char), NAME_MAX + 1);
+    char *resolved_file_path = calloc(sizeof(char), STR_MAX_SIZE + 1);
     realpath(archive_name, resolved_file_path);
 
     int file_d = open(resolved_file_path, O_RDONLY);
@@ -14,13 +14,13 @@ int list(char *archive_name)
     } else
     {
         void *buffer = calloc(1, BUFFER_SIZE);
-        char *filename = calloc(sizeof(char), NAME_MAX+1);
-        u_int64_t read_c = 0;
-        u_int64_t buff_c = 0;
+        char *filename = calloc(sizeof(char), STR_MAX_SIZE + 1);
+        u_int64_t read_c;
+        u_int64_t buff_c;
         char char_t = 0;
         if (buffer == NULL || filename == NULL)
         {
-            printf("error: Not enough memory. Requested %d bytes\n", BUFFER_SIZE+NAME_MAX+1);
+            printf("error: Not enough memory. Requested %d bytes\n", BUFFER_SIZE + STR_MAX_SIZE + 1);
             exit_code = 1;
         } else
         {
@@ -34,13 +34,14 @@ int list(char *archive_name)
                     printf("error: Not archive\n");
                     exit_code = 1;
                 } else {
-                    // Rewind
                     read_c = 0;
+                    // Rewind
                     lseek(file_d, (long)read_c, SEEK_SET);
+
                     read_c += read(file_d, (void *) &char_t, sizeof(char));
                     while (char_t == RECORD_SEPARATOR)
                     {
-                        memset(filename, 0, NAME_MAX+1);
+                        memset(filename, 0, STR_MAX_SIZE + 1);
                         u_int64_t size = 0;
                         u_int64_t position = 0;
                         size_t buff_pos = 0;

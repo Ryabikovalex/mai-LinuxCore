@@ -4,9 +4,8 @@ int pack(char *dir_path, char *archive_name)
 {
     size_t size_t;
     char temp_c;
-    int exit_code = 0;
     DIR *d;
-    char *resolved_dir_path = calloc(sizeof(char), NAME_MAX + 1);
+    char *resolved_dir_path = calloc(sizeof(char), STR_MAX_SIZE + 1);
 
     realpath(dir_path, resolved_dir_path);
     d = opendir(resolved_dir_path);
@@ -23,9 +22,10 @@ int pack(char *dir_path, char *archive_name)
         return 1;
     } else
     {
-        char *resolved_file_path = calloc(sizeof(char), NAME_MAX + 1);
+        int exit_code = 0;
         struct dirent *dir;
         unsigned list_size = 0;
+        char *resolved_file_path = calloc(sizeof(char), STR_MAX_SIZE + 1);
         struct c_file **file_list = calloc(sizeof(struct c_file *), list_size);
 
         while ((dir = readdir(d)) != NULL)
@@ -35,14 +35,14 @@ int pack(char *dir_path, char *archive_name)
                 printf("warn: Skipped directory: %s\n", dir->d_name);
             } else if (dir->d_type == DT_REG) // If regular file
             {
-                memset(resolved_file_path, 0, NAME_MAX+1);
+                memset(resolved_file_path, 0, STR_MAX_SIZE + 1);
                 strcpy(resolved_file_path, resolved_dir_path);
                 // Get size of file
                 size_t = get_fsize(strcat(resolved_file_path, dir->d_name));
                 // Add new item
                 safe_realloc(((void **) &file_list), list_size + 1);
                 file_list[list_size] = calloc(sizeof(struct c_file), 1);
-                file_list[list_size]->name = calloc(sizeof(char), NAME_MAX + 1);
+                file_list[list_size]->name = calloc(sizeof(char), STR_MAX_SIZE + 1);
                 strcpy(file_list[list_size]->name, dir->d_name);
                 file_list[list_size]->size = size_t;
                 list_size++;
@@ -52,7 +52,7 @@ int pack(char *dir_path, char *archive_name)
             }
         }
         // Opened archive
-        char *resolved_archive_path = calloc(sizeof(char), NAME_MAX + 1);
+        char *resolved_archive_path = calloc(sizeof(char), STR_MAX_SIZE + 1);
         realpath(archive_name, resolved_archive_path);
         int archive_d = open(resolved_archive_path, O_CREAT | O_TRUNC | O_RDWR);
 
@@ -83,7 +83,7 @@ int pack(char *dir_path, char *archive_name)
         {
             for (int i = 0; i < list_size; i++)
             {
-                memset(resolved_file_path, 0, NAME_MAX + 1);
+                memset(resolved_file_path, 0, STR_MAX_SIZE + 1);
                 strcpy(resolved_file_path, resolved_dir_path);
                 strcat(resolved_file_path, file_list[i]->name);
                 int file_d = open(resolved_file_path, O_RDONLY);

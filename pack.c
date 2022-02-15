@@ -96,7 +96,6 @@ int pack(char *dir_path, char *archive_name)
                 {
                     printf("error: %s\n", strerror(errno));
                     exit_code = 1;
-                    break;
                 } else
                 {
                     if (write(archive_d, &temp_c, 1))

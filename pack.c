@@ -76,8 +76,8 @@ int pack(char *dir_path, char *archive_name)
 
         // Write files binary
         void *buffer = calloc(sizeof(void *), BUFFER_SIZE);
-        u_int64_t write_c = 0;
-        u_int64_t read_c = 0;
+        u_int64_t write_c;
+        u_int64_t read_c;
         temp_c = BINARY_SEPARATOR;
         if (buffer != NULL)
         {

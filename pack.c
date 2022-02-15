@@ -79,12 +79,7 @@ int pack(char *dir_path, char *archive_name)
         u_int64_t write_c = 0;
         u_int64_t read_c = 0;
         temp_c = BINARY_SEPARATOR;
-        if (buffer == NULL)
-        {
-            printf("error: Not enough memory for buffer. Requested %d bytes\n", BUFFER_SIZE);
-            exit_code = 1;
-            goto pack_end;
-        } else
+        if (buffer != NULL)
         {
             for (int i = 0; i < list_size; i++)
             {
@@ -107,7 +102,7 @@ int pack(char *dir_path, char *archive_name)
                             write_c = write(archive_d, buffer, read_c);
                             if (read_c != write_c)
                             {
-                                printf("error: Cann't copy file to archive.\n");
+                                printf("error: Can't copy file to archive.\n");
                                 exit_code = 1;
                                 break;
                             }
@@ -123,15 +118,12 @@ int pack(char *dir_path, char *archive_name)
                 if (exit_code > 0) break;
             }
             free(buffer);
+        } else
+        {
+            printf("error: Not enough memory for buffer. Requested %d bytes\n", BUFFER_SIZE);
+            exit_code = 1;
         }
 
-        printf("Accumulate %lu\n", accumulate);
-
-        char *script = "asd";
-        int s = write(archive_d, script, 3);
-        printf("%d\n", s);
-
-        pack_end:
         // Close all descriptors
         close(archive_d);
         closedir(d);

@@ -79,18 +79,24 @@ int pack(char *dir_path, char *archive_name)
         u_int64_t write_c = 0;
         u_int64_t read_c = 0;
         temp_c = BINARY_SEPARATOR;
-        if (buffer != NULL)
+        if (buffer == NULL)
+        {
+            printf("error: Not enough memory for buffer. Requested %d bytes\n", BUFFER_SIZE);
+            exit_code = 1;
+            goto pack_end;
+        } else
         {
             for (int i = 0; i < list_size; i++)
             {
-                memset(resolved_file_path, 0, NAME_MAX+1);
+                memset(resolved_file_path, 0, NAME_MAX + 1);
                 strcpy(resolved_file_path, resolved_dir_path);
                 strcat(resolved_file_path, file_list[i]->name);
                 int file_d = open(resolved_file_path, O_RDONLY);
                 if (file_d < 0)
                 {
                     printf("error: %s\n", strerror(errno));
-                    exit_code = 1; break;
+                    exit_code = 1;
+                    break;
                 } else
                 {
                     if (write(archive_d, &temp_c, 1))
@@ -103,11 +109,13 @@ int pack(char *dir_path, char *archive_name)
                             if (read_c != write_c)
                             {
                                 printf("error: Cann't copy file to archive.\n");
-                                exit_code = 1; break;
+                                exit_code = 1;
+                                break;
                             }
                             size_t -= read_c;
                         }
-                    } else {
+                    } else
+                    {
                         printf("error: %s\n", strerror(errno));
                         exit_code = 1;
                     }
@@ -116,11 +124,6 @@ int pack(char *dir_path, char *archive_name)
                 if (exit_code > 0) break;
             }
             free(buffer);
-        } else
-        {
-            printf("error: Not enough memory for buffer. Requested %d bytes\n", BUFFER_SIZE);
-            exit_code = 1;
-            goto pack_end;
         }
 
         printf("Accumulate %lu\n", accumulate);

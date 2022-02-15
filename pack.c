@@ -10,11 +10,6 @@ int pack(char *dir_path, char *archive_name)
     realpath(dir_path, resolved_dir_path);
     d = opendir(resolved_dir_path);
 
-    // Added / for use in loop
-    size_t = strlen(resolved_dir_path);
-    resolved_dir_path[size_t] = '/';
-    resolved_dir_path[size_t + 1] = '\0';
-
     if (d == NULL)
     {
         printf("error: %s\n", strerror(errno));
@@ -27,6 +22,11 @@ int pack(char *dir_path, char *archive_name)
         unsigned list_size = 0;
         char *resolved_file_path = calloc(sizeof(char), STR_MAX_SIZE + 1);
         struct c_file **file_list = calloc(sizeof(struct c_file *), list_size);
+
+        // Added / for use in loop
+        size_t = strlen(resolved_dir_path);
+        resolved_dir_path[size_t] = '/';
+        resolved_dir_path[size_t + 1] = '\0';
 
         while ((dir = readdir(d)) != NULL)
         {

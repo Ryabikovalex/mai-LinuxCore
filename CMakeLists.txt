@@ -10,6 +10,7 @@ set(
         main.c
         pack.c
         unpack.c
+        list.c
         util.h
         util.c
 )

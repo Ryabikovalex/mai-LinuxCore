@@ -14,7 +14,7 @@
 #include "util.h"
 
 // Constants
-#define BUFFER_SIZE 20//1024
+#define BUFFER_SIZE 5//1024
 #define NAME_MAX 255 // It's override default value
 #define RECORD_SEPARATOR  0x1E
 #define BINARY_SEPARATOR  0x1C
@@ -29,5 +29,4 @@ struct c_file
 // Function for creating archive
 int pack(char *dir_name, char *archive_name);
 int unpack(char *archive_name, char *dir_name);
-
-unsigned long get_fsize(char *file_path);
+int list(char *archive_name);

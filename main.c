@@ -8,7 +8,10 @@ int main(int argc, char *argv[])
         return -1;
     } else
     {
-        if (strcmp(argv[1], "pack") == 0)
+        if (strcmp(argv[1], "list") == 0)
+        {
+            return list(argv[2]);
+        } else if (strcmp(argv[1], "pack") == 0)
         {
             char *archive_name = (argc == 4) ? argv[3] : "archive.custom";
             return pack(argv[2], archive_name);
@@ -18,13 +21,4 @@ int main(int argc, char *argv[])
             return unpack(argv[2], output_folder);
         } else return 0;
     }
-}
-
-unsigned long get_fsize(char *file_path)
-{
-    struct stat st;
-    stat(file_path, &st);
-    off_t size = st.st_size;
-
-    return size;
 }

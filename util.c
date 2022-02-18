@@ -139,7 +139,7 @@ struct c_file * getFilesListFromArchive(int archive_fd, int *files_count)
                 free(files_list);
                 return NULL;
             }
-            memcpy(filename + str_len, buffer, count);
+            memcpy(filename + str_len, buf, count);
             filename[str_len+count] = '\0';
             str_len = strlen(filename);
             count = read(archive_fd, buffer, BUFFER_SIZE);

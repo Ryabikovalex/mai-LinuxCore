@@ -65,7 +65,8 @@ int unpack(char *archive_name, char *dir_name)
         goto unpack_free_memory_step_4;
     }
     
-    struct List *files_list = list(archive_fd);
+    size_t files_count;
+    struct c_file *files_list = getFilesListFromArchive(archive_fd, &files_count);
     
     if (files_list == NULL)
     {
@@ -74,13 +75,10 @@ int unpack(char *archive_name, char *dir_name)
         goto unpack_free_memory_step_4;
     }
     
-    struct List *files_list_elem = files_list;
-    
-    while (files_list_elem != NULL)
+    for (int i=0; i<files_count; i++)
     {
-        struct File *file = files_list_elem->data;
-        char *full_filename = (char *)malloc(strlen(resolved_dir_path)+strlen(file->name)+1);
-        if (files_list == NULL)
+        char *full_filename = (char *)malloc(strlen(resolved_dir_path)+strlen(files_list[i].name)+1);
+        if (full_filename == NULL)
         {
             perror("unpack");
             exit_code = errno;
@@ -88,7 +86,7 @@ int unpack(char *archive_name, char *dir_name)
         }
         
         strcpy(full_filename, resolved_dir_path);
-        strcpy(full_filename+strlen(resolved_dir_path), file->name);
+        strcpy(full_filename+strlen(resolved_dir_path), files_list[i].name);
         
         int file_fd = open(full_filename, O_CREAT | O_EXCL | O_WRONLY);
         
@@ -121,7 +119,7 @@ int unpack(char *archive_name, char *dir_name)
             int read_c = 0;
             do
             {
-                count = read(archive_fd, buf, (read_c + BUFFER_SIZE <= file->size) ? BUFFER_SIZE : file->size - read_c);
+                count = read(archive_fd, buf, (read_c + BUFFER_SIZE <= files_list[i].size) ? BUFFER_SIZE : files_list[i].size - read_c);
                 if (count == -1)
                 {
                     close(file_fd);
@@ -145,11 +143,10 @@ int unpack(char *archive_name, char *dir_name)
         }
         
         free(full_filename);
-        files_list_elem = files_list_elem->next;
     }
     
   unpack_free_memory_step_5:
-    removeList(&files_list, freeFile);
+    free(files_list);
   unpack_free_memory_step_4:
     free(buf);
   unpack_free_memory_step_3:

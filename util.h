@@ -11,6 +11,6 @@ struct List{
     struct List *next;
 };
 
-struct c_file * getFilesListFromArchive(int archive_fd, size_t *files_count);
+struct c_file * getFilesListFromArchive(int archive_fd, int *files_count);
 
 #endif //OSLINUX_UTIL_H

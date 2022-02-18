@@ -62,22 +62,22 @@ struct c_file * getFilesListFromArchive(int archive_fd, int *files_count)
             return NULL;
         }
         
-        files_list[files_count].name = (char *)malloc(STR_MAX_SIZE + 1);
-        if (files_list[files_count]->name == NULL)
+        files_list[*files_count].name = (char *)malloc(STR_MAX_SIZE + 1);
+        if (files_list[*files_count]->name == NULL)
         {
             fprintf(stderr, "list: can't create new element in list of files\n");
             free(buf);
             free(files_list);
             return NULL;
         }
-        files_list[files_count].name[0] = '\0';
+        files_list[*files_count].name[0] = '\0';
         
         u_int64_t size = 0;
         u_int64_t position = 0;
         size_t buff_pos = 0;
         
         // Read offset
-        count = read(archive_fd, &(files_list[files_count].size), sizeof(u_int64_t));
+        count = read(archive_fd, &(files_list[*files_count].size), sizeof(u_int64_t));
         if (count == -1)
         {
             perror("list");
@@ -95,7 +95,7 @@ struct c_file * getFilesListFromArchive(int archive_fd, int *files_count)
         read_c += count;
         
         // Read size
-        count = read(archive_fd, &(files_list[files_count].size), sizeof(u_int64_t));
+        count = read(archive_fd, &(files_list[*files_count].size), sizeof(u_int64_t));
         if (count == -1)
         {
             perror("list");
@@ -123,7 +123,7 @@ struct c_file * getFilesListFromArchive(int archive_fd, int *files_count)
         }
         read_c += count;
         
-        char *filename = files_list[files_count].name;
+        char *filename = files_list[*files_count].name;
         size_t str_len = strlen(filename);
         
         void *temp_a = memchr(buffer, RECORD_SEPARATOR, count);
@@ -162,6 +162,7 @@ struct c_file * getFilesListFromArchive(int archive_fd, int *files_count)
         read_c -= count - (temp - buf);
         lseek(archive_fd, read_c, SEEK_SET);
         read_c += read(archive_fd, buf, sizeof(char));
+        *files_count++;
     }
     
     free(buf);

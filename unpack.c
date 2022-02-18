@@ -9,8 +9,8 @@ int unpack(char *archive_name, char *dir_name)
     resolved_archive_path = realpath(archive_name, NULL);
     if (resolved_archive_path == NULL)
     {
-        perror("unpack: archive");
-        exit_code = errno;
+        perror("error: unpack: archive");
+        exit_code = 2;
         goto unpack_free_memory_step_0;
     }
     
@@ -19,15 +19,15 @@ int unpack(char *archive_name, char *dir_name)
     resolved_dir_path = realpath(dir_name, NULL);
     if (resolved_dir_path == NULL)
     {
-        perror("unpack: directory");
-        exit_code = errno;
+        perror("error: unpack: directory");
+        exit_code = 2;
         goto unpack_free_memory_step_1;
     }
     void *temp_ptr = realloc(resolved_dir_path, strlen(resolved_dir_path)+1 + 1);
     if (temp_ptr == NULL)
     {        
-        perror("unpack");
-        exit_code = errno;
+        perror("error: unpack");
+        exit_code = 2;
         goto unpack_free_memory_step_2;
     }
     resolved_dir_path = (char *)temp_ptr;
@@ -38,8 +38,8 @@ int unpack(char *archive_name, char *dir_name)
     
     if (archive_fd == -1)
     {
-        perror("unpack");
-        exit_code = errno;
+        perror("error: unpack");
+        exit_code = 2;
         goto unpack_free_memory_step_2;
     }
     
@@ -47,30 +47,30 @@ int unpack(char *archive_name, char *dir_name)
     
     if (buf == NULL)
     {
-        fprintf(stderr, "unpack: can't allocate buffer: %u bytes\n", (unsigned int)BUFFER_SIZE);
-        exit_code = errno;
+        fprintf(stderr, "error: unpack: can't allocate buffer: %u bytes\n", (unsigned int)BUFFER_SIZE);
+        exit_code = 2;
         goto unpack_free_memory_step_3;
     }
     
     if (read(archive_fd, buf, 1) == -1)
     {
-        perror("unpack");
-        exit_code = errno;
+        perror("error: unpack");
+        exit_code = 2;
         goto unpack_free_memory_step_4;
     }
     if (*((char *)buf) != RECORD_SEPARATOR)
     {
-        fprintf(stderr, "unpack: file is not archive\n");
+        fprintf(stderr, "error: unpack: file is not archive\n");
         exit_code = 1;
         goto unpack_free_memory_step_4;
     }
     
     int files_count;
-    struct c_file *files_list = getFilesListFromArchive(archive_fd, &files_count);
+    struct c_file *files_list = get_files_list_from_archive(archive_fd, &files_count);
     
     if (files_list == NULL)
     {
-        fprintf(stderr, "unpack: error for read of archive struct\n");
+        fprintf(stderr, "error: unpack: error for read of archive struct\n");
         exit_code = 1;
         goto unpack_free_memory_step_4;
     }
@@ -80,8 +80,8 @@ int unpack(char *archive_name, char *dir_name)
         char *full_filename = (char *)malloc(strlen(resolved_dir_path)+strlen(files_list[i].name)+1);
         if (full_filename == NULL)
         {
-            perror("unpack");
-            exit_code = errno;
+            perror("error: unpack");
+            exit_code = 2;
             goto unpack_free_memory_step_5;
         }
         
@@ -94,14 +94,14 @@ int unpack(char *archive_name, char *dir_name)
         {
             if (errno == EEXIST)
             {
-                fprintf(stdout, "unpack: %s is exsisted and will not be unpacked\n", full_filename);
+                fprintf(stdout, "warning: unpack: %s is exsisted and will not be unpacked\n", full_filename);
                 lseek(archive_fd, files_list[i].size + 1, SEEK_CUR);
             }
             else
             {
                 free(full_filename);
-                perror("unpack");
-                exit_code = errno;
+                perror("error: unpack");
+                exit_code = 2;
                 goto unpack_free_memory_step_5;
             }
         }
@@ -112,8 +112,8 @@ int unpack(char *archive_name, char *dir_name)
             {
                 close(file_fd);
                 free(full_filename);
-                perror("unpack");
-                exit_code = errno;
+                perror("error: unpack");
+                exit_code = 2;
                 goto unpack_free_memory_step_5;
             }
             int read_c = 0;
@@ -124,8 +124,8 @@ int unpack(char *archive_name, char *dir_name)
                 {
                     close(file_fd);
                     free(full_filename);
-                    perror("unpack");
-                    exit_code = errno;
+                    perror("error: unpack");
+                    exit_code = 2;
                     goto unpack_free_memory_step_5;
                 }
                 count = write(file_fd, buf, count);
@@ -133,8 +133,8 @@ int unpack(char *archive_name, char *dir_name)
                 {
                     close(file_fd);
                     free(full_filename);
-                    perror("unpack");
-                    exit_code = errno;
+                    perror("error: unpack");
+                    exit_code = 2;
                     goto unpack_free_memory_step_5;
                 }
                 read_c += count;

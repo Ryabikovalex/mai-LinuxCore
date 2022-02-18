@@ -53,7 +53,7 @@ struct c_file * getFilesListFromArchive(int archive_fd, int *files_count)
     
     while (*((char *)buf) == RECORD_SEPARATOR)
     {
-        files_list = safe_realloc((void **)&files_list, (*files_count+1)*sizeof(struct c_file));
+        safe_realloc((void **)&files_list, (*files_count+1)*sizeof(struct c_file));
         if (files_list == NULL)
         {
             fprintf(stderr, "list: can't create new element in list of files\n");
@@ -63,7 +63,7 @@ struct c_file * getFilesListFromArchive(int archive_fd, int *files_count)
         }
         
         files_list[*files_count].name = (char *)malloc(STR_MAX_SIZE + 1);
-        if (files_list[*files_count]->name == NULL)
+        if (files_list[*files_count].name == NULL)
         {
             fprintf(stderr, "list: can't create new element in list of files\n");
             free(buf);
@@ -126,8 +126,8 @@ struct c_file * getFilesListFromArchive(int archive_fd, int *files_count)
         char *filename = files_list[*files_count].name;
         size_t str_len = strlen(filename);
         
-        void *temp_a = memchr(buffer, RECORD_SEPARATOR, count);
-        void *temp_b = memchr(buffer, BINARY_SEPARATOR, count);
+        void *temp_a = memchr(buf, RECORD_SEPARATOR, count);
+        void *temp_b = memchr(buf, BINARY_SEPARATOR, count);
         void *temp = (temp_a == NULL) ? temp_b : temp_a;
         
         while (temp == NULL)
@@ -162,7 +162,7 @@ struct c_file * getFilesListFromArchive(int archive_fd, int *files_count)
         read_c -= count - (temp - buf);
         lseek(archive_fd, read_c, SEEK_SET);
         read_c += read(archive_fd, buf, sizeof(char));
-        *files_count++;
+        (*files_count)++;
     }
     
     free(buf);

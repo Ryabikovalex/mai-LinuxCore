@@ -58,7 +58,7 @@ int unpack(char *archive_name, char *dir_name)
         exit_code = errno;
         goto unpack_free_memory_step_4;
     }
-    if (*buf != RECORD_SEPARATOR)
+    if (*((char *)buf) != RECORD_SEPARATOR)
     {
         fprintf(stderr, "unpack: file is not archive\n");
         exit_code = 1;
@@ -95,7 +95,7 @@ int unpack(char *archive_name, char *dir_name)
             if (errno == EEXIST)
             {
                 fprintf(stdout, "unpack: %s is exsisted and will not be unpacked\n", full_filename);
-                lseek(archive_fd, file->size + 1, SEEK_CUR);
+                lseek(archive_fd, files_list[i].size + 1, SEEK_CUR);
             }
             else
             {

@@ -142,7 +142,7 @@ struct c_file * getFilesListFromArchive(int archive_fd, int *files_count)
             memcpy(filename + str_len, buf, count);
             filename[str_len+count] = '\0';
             str_len = strlen(filename);
-            count = read(archive_fd, buffer, BUFFER_SIZE);
+            count = read(archive_fd, buf, BUFFER_SIZE);
             if (count == -1)
             {
                 perror("list");

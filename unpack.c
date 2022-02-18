@@ -47,7 +47,7 @@ int unpack(char *archive_name, char *dir_name)
     
     if (buf == NULL)
     {
-        fprintf(stderr, "unpack: can't allocate buffer: %ud bytes\n", (unsigned int)BUFFER_SIZE);
+        fprintf(stderr, "unpack: can't allocate buffer: %u bytes\n", (unsigned int)BUFFER_SIZE);
         exit_code = errno;
         goto unpack_free_memory_step_3;
     }

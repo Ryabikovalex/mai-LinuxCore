@@ -34,7 +34,7 @@ struct c_file * getFilesListFromArchive(int archive_fd, size_t *files_count)
     
     if (buf == NULL)
     {
-        fprintf(stderr, "list: can't allocate buffer: %ud bytes\n", (unsigned int)BUFFER_SIZE);
+        fprintf(stderr, "list: can't allocate buffer: %u bytes\n", (unsigned int)BUFFER_SIZE);
         return NULL;
     }
     

@@ -22,7 +22,8 @@ int list(char *archive_name)
         goto unpack_free_memory_step_1;
     }
     
-    struct List *files_list = getFilesListFromArchive(archive_fd);
+    size_t files_count;
+    struct c_file *files_list = getFilesListFromArchive(archive_fd, &files_count);
     
     if (files_list == NULL)
     {
@@ -31,18 +32,12 @@ int list(char *archive_name)
         goto unpack_free_memory_step_2;
     }
     
-    struct List *files_list_elem = files_list;
-    
-    while (files_list_elem != NULL)
+    for (int i=0; i<files_count; i++)
     {
-        struct c_file *file = (struct c_file *)files_list_elem->data;
-        
-        fprintf(stdout, "File: %s\nSize: %ul\n\n", file->name, file->size);
-        
-        files_list_elem = files_list_elem->next;
+        fprintf(stdout, "File: %s\nSize: %lu\n\n", files_list[i].name, files_list[i].size);
     }
     
-    removeList(&files_list, freeFile);
+    free(files_list);
   unpack_free_memory_step_2:
     close(archive_fd);
   unpack_free_memory_step_1:

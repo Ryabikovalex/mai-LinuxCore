@@ -22,7 +22,7 @@ int list(char *archive_name)
         goto unpack_free_memory_step_1;
     }
     
-    size_t files_count;
+    int files_count;
     struct c_file *files_list = getFilesListFromArchive(archive_fd, &files_count);
     
     if (files_list == NULL)

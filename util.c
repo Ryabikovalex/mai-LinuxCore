@@ -164,6 +164,7 @@ struct c_file * get_files_list_from_archive(int archive_fd, int *files_count)
         read_c += read(archive_fd, buf, sizeof(char));
         (*files_count)++;
     }
+    lseek(archive_fd, -1, SEEK_CUR);
     
     free(buf);
     return files_list;

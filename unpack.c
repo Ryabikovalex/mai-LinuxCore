@@ -31,8 +31,8 @@ int unpack(char *archive_name, char *dir_name)
         goto unpack_free_memory_step_2;
     }
     resolved_dir_path = (char *)temp_ptr;
-    resolved_dir_path[strlen(resolved_dir_path)+2] = '\0';
-    resolved_dir_path[strlen(resolved_dir_path)+1] = '/';
+    resolved_dir_path[strlen(resolved_dir_path)+1] = '\0';
+    resolved_dir_path[strlen(resolved_dir_path)] = '/';
     
     int archive_fd = open(resolved_archive_path, O_RDONLY);
     
@@ -88,7 +88,7 @@ int unpack(char *archive_name, char *dir_name)
         strcpy(full_filename, resolved_dir_path);
         strcpy(full_filename+strlen(resolved_dir_path), files_list[i].name);
         
-        int file_fd = open(full_filename, O_CREAT | O_EXCL | O_WRONLY);
+        int file_fd = open(full_filename, O_CREAT | O_EXCL | O_WRONLY, S_IRUSR | S_IWUSR | S_IRGRP);
         
         if (file_fd == -1)
         {

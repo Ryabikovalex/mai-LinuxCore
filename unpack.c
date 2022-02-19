@@ -146,6 +146,9 @@ int unpack(char *archive_name, char *dir_name)
     }
     
   unpack_free_memory_step_5:
+    for(int i=0; i<files_count; i++){
+        free(files_list[i].name);
+    }
     free(files_list);
   unpack_free_memory_step_4:
     free(buf);

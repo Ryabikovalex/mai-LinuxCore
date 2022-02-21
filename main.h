@@ -10,14 +10,14 @@
 // Pthread
 #include <pthread.h>
 
-// User defined functions
-#include "util.h"
-
 // Constants
-#define BUFFER_SIZE 5//1024
+#define BUFFER_SIZE 64//1024
 #define STR_MAX_SIZE 255 // It's override default value
 #define RECORD_SEPARATOR  0x1E
 #define BINARY_SEPARATOR  0x1C
+
+// User defined functions
+#include "util.h"
 
 // Structs
 struct c_file

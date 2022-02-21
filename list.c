@@ -3,94 +3,45 @@
 int list(char *archive_name)
 {
     int exit_code = 0;
-    char *resolved_file_path = calloc(sizeof(char), STR_MAX_SIZE + 1);
-    realpath(archive_name, resolved_file_path);
-
-    int file_d = open(resolved_file_path, O_RDONLY);
-    if (file_d < 0)
+    char *resolved_archive_path;
+    
+    resolved_archive_path = realpath(archive_name, NULL);
+    if (resolved_archive_path == NULL)
     {
         printf("error: %s\n", strerror(errno));
         exit_code = 1;
-    } else
-    {
-        void *buffer = calloc(1, BUFFER_SIZE);
-        char *filename = calloc(sizeof(char), STR_MAX_SIZE + 1);
-        u_int64_t read_c;
-        u_int64_t buff_c;
-        char char_t = 0;
-        if (buffer == NULL || filename == NULL)
-        {
-            printf("error: Not enough memory. Requested %d bytes\n", BUFFER_SIZE + STR_MAX_SIZE + 1);
-            exit_code = 1;
-        } else
-        {
-            if (read(file_d, (void *) &char_t, sizeof(char)) != 1)
-            {
-                printf("error: %s\n", strerror(errno));
-                exit_code = 1;
-            } else {
-                if (char_t != RECORD_SEPARATOR)
-                {
-                    printf("error: Not archive\n");
-                    exit_code = 1;
-                } else {
-                    read_c = 0;
-                    // Rewind
-                    lseek(file_d, (long)read_c, SEEK_SET);
-
-                    read_c += read(file_d, (void *) &char_t, sizeof(char));
-                    while (char_t == RECORD_SEPARATOR)
-                    {
-                        memset(filename, 0, STR_MAX_SIZE + 1);
-                        u_int64_t size = 0;
-                        u_int64_t position = 0;
-                        size_t buff_pos = 0;
-                        // Read offset
-                        read_c += read(file_d, buffer, sizeof(u_int64_t));
-                        memcpy(&position, buffer, sizeof(u_int64_t));
-                        // Read size
-                        read_c += read(file_d, buffer, sizeof(u_int64_t));
-                        memcpy(&size, buffer, sizeof(u_int64_t));
-
-                        // Read filename
-                        buff_c = read(file_d, buffer, BUFFER_SIZE);
-                        read_c += buff_c;
-
-                        size_t str_len = strlen(filename);
-                        void *temp_a = memchr(buffer, RECORD_SEPARATOR, buff_c);
-                        void *temp_b = memchr(buffer, BINARY_SEPARATOR, buff_c);
-                        void *temp = (temp_a == NULL) ? temp_b : temp_a;
-                        while (temp == NULL)
-                        {
-                            memcpy(filename+str_len, buffer, buff_c);
-                            filename[str_len+buff_c] = 0;
-                            str_len = strlen(filename);
-                            buff_c = read(file_d, buffer, BUFFER_SIZE);
-                            read_c += buff_c;
-                            temp_a = memchr(buffer, RECORD_SEPARATOR, buff_c);
-                            temp_b = memchr(buffer, BINARY_SEPARATOR, buff_c);
-                            temp = (temp_a == NULL) ? temp_b : temp_a;
-                        }
-                        memcpy(filename+str_len, buffer, temp - buffer);
-                        filename[str_len+(temp - buffer)] = 0;
-
-                        // Print information
-                        printf("File: %s size: %lu bytes, offset: %lx\n", filename, size, position);
-
-                        // TODO
-                        // Set to next record
-                        read_c -= buff_c - (temp - buffer);
-                        lseek(file_d, (long)read_c, SEEK_SET);
-                        read_c += read(file_d, (void *) &char_t, sizeof(char));
-                    }
-                }
-            }
-        }
-        free(filename);
-        free(buffer);
-        close(file_d);
+        goto unpack_free_memory_step_0;
     }
-
-    free(resolved_file_path);
+    
+    int archive_fd = open(resolved_archive_path, O_RDONLY);
+    
+    if (archive_fd == -1)
+    {
+        printf("error: %s\n", strerror(errno));
+        exit_code = 1;
+        goto unpack_free_memory_step_1;
+    }
+    
+    int files_count;
+    struct c_file *files_list = get_files_list_from_archive(archive_fd, &files_count);
+    
+    if (files_list == NULL)
+    {
+        printf("error: Can't open file \"%s\"\\n", resolved_archive_path);
+        exit_code = 1;
+        goto unpack_free_memory_step_2;
+    }
+    
+    for (int i=0; i<files_count; i++)
+    {
+        fprintf(stdout, "File: %s\nSize: %lu\n\n", files_list[i].name, files_list[i].size);
+    }
+    
+    free(files_list);
+  unpack_free_memory_step_2:
+    close(archive_fd);
+  unpack_free_memory_step_1:
+    free(resolved_archive_path);
+  unpack_free_memory_step_0:
     return exit_code;
 }

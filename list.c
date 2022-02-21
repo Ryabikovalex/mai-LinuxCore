@@ -8,8 +8,8 @@ int list(char *archive_name)
     resolved_archive_path = realpath(archive_name, NULL);
     if (resolved_archive_path == NULL)
     {
-        perror("error: list");
-        exit_code = 2;
+        printf("error: %s\n", strerror(errno));
+        exit_code = 1;
         goto unpack_free_memory_step_0;
     }
     
@@ -17,8 +17,8 @@ int list(char *archive_name)
     
     if (archive_fd == -1)
     {
-        perror("error: unpack");
-        exit_code = 2;
+        printf("error: %s\n", strerror(errno));
+        exit_code = 1;
         goto unpack_free_memory_step_1;
     }
     
@@ -27,7 +27,7 @@ int list(char *archive_name)
     
     if (files_list == NULL)
     {
-        fprintf(stderr, "error: unpack: error for read of archive struct\n");
+        printf("error: Can't open file \"%s\"\\n", resolved_archive_path);
         exit_code = 1;
         goto unpack_free_memory_step_2;
     }

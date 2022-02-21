@@ -34,14 +34,14 @@ struct c_file * get_files_list_from_archive(int archive_fd, int *files_count)
     
     if (buf == NULL)
     {
-        fprintf(stderr, "error: list: can't allocate buffer: %u bytes\n", (unsigned int)BUFFER_SIZE);
+        printf("error: Can't allocate buffer: %u bytes\n", (unsigned int)BUFFER_SIZE);
         return NULL;
     }
     
     count = read(archive_fd, buf, sizeof(char));
     if (count == -1)
     {
-        perror("error: list");
+        printf("error: Can't read archive\n");
         free(buf);
         return NULL;
     }
@@ -56,7 +56,7 @@ struct c_file * get_files_list_from_archive(int archive_fd, int *files_count)
         safe_realloc((void **)&files_list, (*files_count+1)*sizeof(struct c_file));
         if (files_list == NULL)
         {
-            fprintf(stderr, "error: list: can't create new element in list of files\n");
+            printf("error: Not enough memory to read archive list\n");
             free(buf);
             free(files_list);
             return NULL;
@@ -65,7 +65,7 @@ struct c_file * get_files_list_from_archive(int archive_fd, int *files_count)
         files_list[*files_count].name = (char *)malloc(STR_MAX_SIZE + 1);
         if (files_list[*files_count].name == NULL)
         {
-            fprintf(stderr, "error: list: can't create new element in list of files\n");
+            printf("error: Not enough memory to read archive list\n");
             free(buf);
             free(files_list);
             return NULL;
@@ -80,14 +80,14 @@ struct c_file * get_files_list_from_archive(int archive_fd, int *files_count)
         count = read(archive_fd, &(files_list[*files_count].size), sizeof(u_int64_t));
         if (count == -1)
         {
-            perror("error: list");
+            printf("error: Can't read archive\n");
             free(buf);
             free(files_list);
             return NULL;
         }
         if (count < sizeof(u_int64_t))
         {
-            fprintf(stderr, "error: list: archive corrupted\n");
+            printf("error: Wrong file offset. Archive corrupted\n");
             free(buf);
             free(files_list);
             return NULL;
@@ -98,14 +98,14 @@ struct c_file * get_files_list_from_archive(int archive_fd, int *files_count)
         count = read(archive_fd, &(files_list[*files_count].size), sizeof(u_int64_t));
         if (count == -1)
         {
-            perror("error: list");
+            printf("error: Can't read archive\n");
             free(buf);
             free(files_list);
             return NULL;
         }
         if (count < sizeof(u_int64_t))
         {
-            fprintf(stderr, "error: list: archive corrupted\n");
+            printf("error: Wrong file size. Archive corrupted\n");
             free(buf);
             free(files_list);
             return NULL;
@@ -116,7 +116,7 @@ struct c_file * get_files_list_from_archive(int archive_fd, int *files_count)
         count = read(archive_fd, buf, BUFFER_SIZE);
         if (count == -1)
         {
-            perror("error: list");
+            printf("error: Can't read archive\n");
             free(buf);
             free(files_list);
             return NULL;
@@ -134,7 +134,7 @@ struct c_file * get_files_list_from_archive(int archive_fd, int *files_count)
         {
             if (str_len + count > STR_MAX_SIZE)
             {
-                fprintf(stderr, "error: list: archive corrupted\n");
+                printf("error: Can't read archive\n");
                 free(buf);
                 free(files_list);
                 return NULL;
@@ -145,7 +145,7 @@ struct c_file * get_files_list_from_archive(int archive_fd, int *files_count)
             count = read(archive_fd, buf, BUFFER_SIZE);
             if (count == -1)
             {
-                perror("error: list");
+                printf("error: Can't read archive\n");
                 free(buf);
                 free(files_list);
                 return NULL;

@@ -16,7 +16,6 @@ function step_run {
 
 case "$command" in
   "ci")
-    cmake -S. -B.build;
     step_test;
     step_build;;
   "init")

@@ -5,17 +5,16 @@ int pack(char *dir_path, char *archive_name)
     int exit_code = 0;
     size_t size_t;
     char temp_c;
-    DIR *d;
+    u_int32_t file_list_size = 0;
+    int depth = 0;
     char *resolved_dir_path = calloc(sizeof(char), STR_MAX_SIZE + 1);
 
     realpath(dir_path, resolved_dir_path);
-    d = opendir(resolved_dir_path);
 
     int str_len = strlen(resolved_dir_path);
     resolved_dir_path[str_len] = '/';
     resolved_dir_path[str_len+1] = 0;
-    u_int32_t file_list_size = 0;
-    int depth = 0;
+
     struct c_file **file_list = calloc(sizeof(struct c_file *), file_list_size);
     char *relative_path = calloc(sizeof(char), STR_MAX_SIZE + 1);
     memset(relative_path, 0, STR_MAX_SIZE + 1);

@@ -3,7 +3,7 @@
 command=$1
 
 function step_test() {
-    cppcheck --enable=all *.c --enable=all --suppress=missingInclude --std=c11;
+    cppcheck --enable=all *.c --enable=all --suppress=missingInclude --std=c11 | grep -C 1 "warning|error" 1>/dev/stderr;
 }
 
 function step_build() {

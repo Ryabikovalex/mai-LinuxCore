@@ -28,7 +28,7 @@ int pack(char *dir_path, char *archive_name)
         realpath(archive_name, resolved_archive_path);
         // Open archive
         int archive_d = open(resolved_archive_path, O_CREAT | O_TRUNC | O_RDWR);
-
+        fchmod(archive_d, S_IWUSR | S_IRUSR | S_IRGRP);
         u_int64_t accumulate = 0; // Binary start position
 
         // Accumulate

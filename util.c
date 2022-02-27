@@ -278,12 +278,11 @@ int mkdir_p_flag(char *file_path, mode_t mode)
     char *file = calloc(STR_MAX_SIZE + 1, sizeof(char));
     memset(file, 0, STR_MAX_SIZE + 1);
     strcpy(file, file_path);
-    for (char *p = strchr(file + 1, '/'); p != strrchr(file, '/'); p = strchr(p + 1, '/'))
+    for (char *p = strchr(file + 1, '/'); p; p = strchr(p + 1, '/'))
     {
         *p = '\0';
         if (mkdir(file, mode) == -1)
         {
-            printf("%s, %s\n", file, strerror(errno));
             if (errno != EEXIST)
             {
                 *p = '/';

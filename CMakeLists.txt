@@ -15,6 +15,7 @@ set(
         util.c
 )
 add_executable(osLinux ${SOURCE_FILES})
+add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREADS_FLAG TRUE)

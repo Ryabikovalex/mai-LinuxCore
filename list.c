@@ -34,7 +34,7 @@ int list(char *archive_name)
     
     for (int i=0; i<files_count; i++)
     {
-        fprintf(stdout, "File: %15s %4lu bytes\n", files_list[i].name, files_list[i].size);
+        fprintf(stdout, "File: %-15s %4lu bytes\n", files_list[i].name, files_list[i].size);
     }
     
     free(files_list);

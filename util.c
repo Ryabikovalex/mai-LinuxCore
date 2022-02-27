@@ -234,6 +234,13 @@ int accumulate_files_from_dir(const char *dir_path, char **acc_path, struct c_fi
                 size_t file_size = 0;
                 char *file_path = calloc(STR_MAX_SIZE + 1, sizeof(char));
                 char *resolved_file_path = calloc(STR_MAX_SIZE + 1, sizeof(char));
+                if (file_path == NULL || resolved_file_path)
+                {
+                    printf("error: Not enough memory. Requested %d bytes.", STR_MAX_SIZE+1);
+                    closedir(dir_d);
+                    exit_code = 1;
+                    goto accumulate_files_from_dir_exit;
+                }
 
                 memset(file_path, 0, STR_MAX_SIZE + 1);
                 strcpy(file_path, relative_path);
@@ -276,6 +283,11 @@ int mkdir_p_flag(char *file_path, mode_t mode)
 {
     if (file_path == NULL) return 1;
     char *file = calloc(STR_MAX_SIZE + 1, sizeof(char));
+    if (file == NULL)
+    {
+        printf("error: Not enough memory. Requested %d bytes.", STR_MAX_SIZE+1);
+        return 1;
+    }
     memset(file, 0, STR_MAX_SIZE + 1);
     strcpy(file, file_path);
     for (char *p = strchr(file + 1, '/'); p; p = strchr(p + 1, '/'))

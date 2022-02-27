@@ -170,10 +170,12 @@ struct c_file * get_files_list_from_archive(int archive_fd, int *files_count)
     return files_list;
 }
 
-int accumulate_files_from_dir( struct c_file **accumulate, size_t *acc_size, const char *dir_path, const int *depth)
+int accumulate_files_from_dir(const char *dir_path, char **acc_path, struct c_file ***accumulate,
+                              u_int32_t *acc_size, int *depth)
 {
     if (accumulate == NULL || acc_size == NULL || dir_path == NULL)
     {
+        printf("error: Missing arguments\n");
         return 1;
     }
     if (depth == NULL || *depth == DIR_DEPTH)
@@ -181,7 +183,91 @@ int accumulate_files_from_dir( struct c_file **accumulate, size_t *acc_size, con
         return 0;
     }
 
+    int exit_code = 0;
 
+    // Store root dir for accumulate
+    char *d_path        = calloc(STR_MAX_SIZE + 1, sizeof(char));
+    // Store relative path to root dir
+    char *relative_path = calloc(STR_MAX_SIZE + 1, sizeof(char));
+    // Store resolved path to file / dir
+    char *solved_d_path = calloc(STR_MAX_SIZE + 1, sizeof(char));
+    if (d_path == NULL || relative_path == NULL || solved_d_path == NULL)
+    {
+        printf("error: Not enough memory. Requested %d bytes\n", STR_MAX_SIZE);
+        exit_code = 1;
+        goto accumulate_files_from_dir_exit;
+    }
 
-    return 0;
+    // Init d_path strings
+    memset(d_path, 0, STR_MAX_SIZE + 1);
+    memset(solved_d_path, 0, STR_MAX_SIZE + 1);
+    memset(relative_path, 0, STR_MAX_SIZE + 1);
+    acc_path[0][strlen(acc_path[0])] = '/';
+    acc_path[0][strlen(acc_path[0])] = 0;
+    memcpy(relative_path, acc_path[0], strlen(acc_path[0]));
+    memcpy(d_path, dir_path, strlen(dir_path));
+
+    // Get full path
+    strcat(d_path, relative_path);
+
+    realpath(d_path, solved_d_path);
+    DIR *dir_d = opendir(solved_d_path);
+
+    if (dir_d == NULL)
+    {
+        printf("error: %s\n", strerror(errno));
+        exit_code = 1;
+        goto accumulate_files_from_dir_exit;
+    } else
+    {
+        struct dirent *dir;
+        while ((dir = readdir(dir_d)) != NULL)
+        {
+            if (dir->d_type == DT_DIR && (dir->d_name[0] != '.'))
+            {
+                printf("Directory %s\n", dir->d_name);
+                strcat(acc_path[0], dir->d_name);
+                depth[0]++;
+                exit_code += accumulate_files_from_dir(dir_path, acc_path, accumulate, acc_size, depth);
+            } else if (dir->d_type == DT_REG) // If regular file
+            {
+                size_t file_size = 0;
+                char *file_path  = calloc(STR_MAX_SIZE+1, sizeof(char));
+                char *resolved_file_path  = calloc(STR_MAX_SIZE+1, sizeof(char));
+
+                memset(file_path, 0, STR_MAX_SIZE+1);
+                strcpy(file_path, relative_path);
+                strcat(file_path, dir->d_name);
+
+                memset(resolved_file_path, 0, STR_MAX_SIZE+1);
+                strcpy(resolved_file_path, solved_d_path);
+                file_size = strlen(resolved_file_path);
+                resolved_file_path[file_size] = '/';
+                resolved_file_path[file_size+1] = 0;
+                // Get size of file
+                file_size = get_file_size(strcat(resolved_file_path, dir->d_name));
+                // Add new item
+                safe_realloc(((void **) accumulate), (acc_size[0] + 1)* sizeof(struct c_file *));
+                accumulate[0][acc_size[0]] = calloc(sizeof(struct c_file), 1);
+                accumulate[0][acc_size[0]]->name = calloc(sizeof(char), STR_MAX_SIZE + 1);
+                strcpy(accumulate[0][acc_size[0]]->name, file_path);
+                accumulate[0][acc_size[0]]->size = file_size;
+                acc_size[0]++;
+
+                free(file_path);
+                free(resolved_file_path);
+            } else if (dir->d_type == DT_LNK)
+            {
+                printf("warn: Skipped link: '%s'\n", dir->d_name);
+            }
+
+        }
+        closedir(dir_d);
+    }
+
+    accumulate_files_from_dir_exit:
+    free(d_path);
+    free(relative_path);
+    free(solved_d_path);
+    return exit_code;
 }

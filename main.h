@@ -11,6 +11,7 @@
 #include <pthread.h>
 
 // Constants
+#define DIR_DEPTH 3
 #define BUFFER_SIZE 64//1024
 #define STR_MAX_SIZE 255 // It's override default value
 #define RECORD_SEPARATOR  0x1E

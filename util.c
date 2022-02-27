@@ -14,7 +14,7 @@ void safe_realloc(void **ptr, unsigned int size)
     }
 }
 
-unsigned long get_fsize(char *file_path)
+unsigned long get_file_size(char *file_path)
 {
     struct stat st;
     stat(file_path, &st);
@@ -168,4 +168,20 @@ struct c_file * get_files_list_from_archive(int archive_fd, int *files_count)
     
     free(buf);
     return files_list;
+}
+
+int accumulate_files_from_dir( struct c_file **accumulate, size_t *acc_size, const char *dir_path, const int *depth)
+{
+    if (accumulate == NULL || acc_size == NULL || dir_path == NULL)
+    {
+        return 1;
+    }
+    if (depth == NULL || *depth == DIR_DEPTH)
+    {
+        return 0;
+    }
+
+
+
+    return 0;
 }

@@ -38,7 +38,7 @@ int pack(char *dir_path, char *archive_name)
                 memset(resolved_file_path, 0, STR_MAX_SIZE + 1);
                 strcpy(resolved_file_path, resolved_dir_path);
                 // Get size of file
-                size_t = get_fsize(strcat(resolved_file_path, dir->d_name));
+                size_t = get_file_size(strcat(resolved_file_path, dir->d_name));
                 // Add new item
                 safe_realloc(((void **) &file_list), (list_size + 1)* sizeof(struct c_file *));
                 file_list[list_size] = calloc(sizeof(struct c_file), 1);

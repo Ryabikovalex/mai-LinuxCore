@@ -2,70 +2,43 @@
 
 int pack(char *dir_path, char *archive_name)
 {
+    int exit_code = 0;
     size_t size_t;
     char temp_c;
-    DIR *d;
+    u_int32_t file_list_size = 0;
+    int depth = 0;
     char *resolved_dir_path = calloc(sizeof(char), STR_MAX_SIZE + 1);
 
     realpath(dir_path, resolved_dir_path);
-    d = opendir(resolved_dir_path);
 
-    if (d == NULL)
+    int str_len = strlen(resolved_dir_path);
+    resolved_dir_path[str_len] = '/';
+    resolved_dir_path[str_len+1] = 0;
+
+    struct c_file **file_list = calloc(sizeof(struct c_file *), file_list_size);
+    char *relative_path = calloc(sizeof(char), STR_MAX_SIZE + 1);
+    memset(relative_path, 0, STR_MAX_SIZE + 1);
+    relative_path[0] = '.';
+
+    int acc_status = accumulate_files_from_dir(resolved_dir_path, &relative_path, &file_list, &file_list_size, &depth);
+    if (acc_status == 0)
     {
-        printf("error: %s\n", strerror(errno));
-        free(resolved_dir_path);
-        return 1;
-    } else
-    {
-        int exit_code = 0;
-        struct dirent *dir;
-        unsigned list_size = 0;
-        char *resolved_file_path = calloc(sizeof(char), STR_MAX_SIZE + 1);
-        struct c_file **file_list = calloc(sizeof(struct c_file *), list_size);
-
-        // Added / for use in loop
-        size_t = strlen(resolved_dir_path);
-        resolved_dir_path[size_t] = '/';
-        resolved_dir_path[size_t + 1] = '\0';
-
-        while ((dir = readdir(d)) != NULL)
-        {
-            if (dir->d_type == DT_DIR && (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0))
-            {
-                printf("warn: Skipped directory: %s\n", dir->d_name);
-            } else if (dir->d_type == DT_REG) // If regular file
-            {
-                memset(resolved_file_path, 0, STR_MAX_SIZE + 1);
-                strcpy(resolved_file_path, resolved_dir_path);
-                // Get size of file
-                size_t = get_fsize(strcat(resolved_file_path, dir->d_name));
-                // Add new item
-                safe_realloc(((void **) &file_list), (list_size + 1)* sizeof(struct c_file *));
-                file_list[list_size] = calloc(sizeof(struct c_file), 1);
-                file_list[list_size]->name = calloc(sizeof(char), STR_MAX_SIZE + 1);
-                strcpy(file_list[list_size]->name, dir->d_name);
-                file_list[list_size]->size = size_t;
-                list_size++;
-            } else if (dir->d_type == DT_LNK)
-            {
-                printf("warn: Skipped link: '%s'\n", dir->d_name);
-            }
-        }
-        // Opened archive
         char *resolved_archive_path = calloc(sizeof(char), STR_MAX_SIZE + 1);
+        char *resolved_file_path = calloc(sizeof(char), STR_MAX_SIZE + 1);
         realpath(archive_name, resolved_archive_path);
+        // Open archive
         int archive_d = open(resolved_archive_path, O_CREAT | O_TRUNC | O_RDWR);
-
+        fchmod(archive_d, S_IWUSR | S_IRUSR | S_IRGRP);
         u_int64_t accumulate = 0; // Binary start position
 
         // Accumulate
-        for (int i = 0; i < list_size; i++)
+        for (int i = 0; i < file_list_size; i++)
         {
             // +2 char of Record and File separators
             accumulate += 1 + strlen(file_list[i]->name) + 2 * sizeof(u_int64_t);
         }
         temp_c = RECORD_SEPARATOR;
-        for (int i = 0; i < list_size; i++)
+        for (int i = 0; i < file_list_size; i++)
         {
             accumulate += 1 + file_list[i]->size;
             write(archive_d, &temp_c, 1);
@@ -81,7 +54,7 @@ int pack(char *dir_path, char *archive_name)
         temp_c = BINARY_SEPARATOR;
         if (buffer != NULL)
         {
-            for (int i = 0; i < list_size; i++)
+            for (int i = 0; i < file_list_size; i++)
             {
                 memset(resolved_file_path, 0, STR_MAX_SIZE + 1);
                 strcpy(resolved_file_path, resolved_dir_path);
@@ -126,18 +99,21 @@ int pack(char *dir_path, char *archive_name)
 
         // Close all descriptors
         close(archive_d);
-        closedir(d);
-
-        // Memory free
-        for (int i = 0; i < list_size; i++)
-        {
-            free(file_list[i]->name);
-            free(file_list[i]);
-        }
-        free(file_list);
-        free(resolved_dir_path);
-        free(resolved_file_path);
         free(resolved_archive_path);
-        return exit_code;
+        free(resolved_file_path);
+    } else {
+        printf("error: Error in recursive directory reading\n");
+        exit_code = 1;
     }
+
+    // Memory free
+    for (int i = 0; i < file_list_size; i++)
+    {
+        free(file_list[i]->name);
+        free(file_list[i]);
+    }
+    free(relative_path);
+    free(file_list);
+    free(resolved_dir_path);
+    return exit_code;
 }

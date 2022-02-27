@@ -1,6 +1,7 @@
 .directory
 .idea
 .build
+cmake-build-debug
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles

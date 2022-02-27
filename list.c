@@ -29,16 +29,13 @@ int list(char *archive_name)
     {
         printf("error: Can't open file \"%s\"\\n", resolved_archive_path);
         exit_code = 1;
-        goto unpack_free_memory_step_2;
+    } else {
+        for (int i=0; i<files_count; i++)
+        {
+            fprintf(stdout, "File: %-15s %4lu bytes\n", files_list[i].name, files_list[i].size);
+        }
+        free(files_list);
     }
-    
-    for (int i=0; i<files_count; i++)
-    {
-        fprintf(stdout, "File: %s\nSize: %lu\n\n", files_list[i].name, files_list[i].size);
-    }
-    
-    free(files_list);
-  unpack_free_memory_step_2:
     close(archive_fd);
   unpack_free_memory_step_1:
     free(resolved_archive_path);

@@ -29,9 +29,6 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: ./command.sh init
 
-    - name: Run tests
-      run: ./command.sh test
-
-    - name: Build
-      run: ./command.sh build
+    - name: Run CI steps
+      run: ./command.sh ci
       

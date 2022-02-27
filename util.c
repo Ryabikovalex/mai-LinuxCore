@@ -225,7 +225,6 @@ int accumulate_files_from_dir(const char *dir_path, char **acc_path, struct c_fi
         {
             if (dir->d_type == DT_DIR && (dir->d_name[0] != '.'))
             {
-                printf("Directory %s\n", dir->d_name);
                 strcat(acc_path[0], dir->d_name);
                 depth[0]++;
                 exit_code += accumulate_files_from_dir(dir_path, acc_path, accumulate, acc_size, depth);

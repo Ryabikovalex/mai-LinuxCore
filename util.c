@@ -234,7 +234,7 @@ int accumulate_files_from_dir(const char *dir_path, char **acc_path, struct c_fi
                 size_t file_size = 0;
                 char *file_path = calloc(STR_MAX_SIZE + 1, sizeof(char));
                 char *resolved_file_path = calloc(STR_MAX_SIZE + 1, sizeof(char));
-                if (file_path == NULL || resolved_file_path)
+                if (file_path == NULL || resolved_file_path == NULL)
                 {
                     printf("error: Not enough memory. Requested %d bytes.", STR_MAX_SIZE+1);
                     closedir(dir_d);
